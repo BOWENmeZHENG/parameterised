@@ -24,6 +24,7 @@ r_pressure = 0.1
 material_name = 'wheel_material'
 E = 1e8
 mu = 0.3
+section_name = 'wheel_section'
 
 # Derived values
 search_point_whole = (0.0, r_out, width / 2)
@@ -84,9 +85,13 @@ for i in range(num_spokes - 1):
                         sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion)
     del mysketch
 
-# Materials
+# Material & Section
 mymodel.Material(name=material_name)
 mymodel.materials[material_name].Elastic(table=((E, mu), ))
+mymodel.HomogeneousSolidSection(material=material_name, name=section_name, thickness=None)
+mypart.SectionAssignment(offset=0.0, offsetField='', offsetType=MIDDLE_SURFACE,
+                         region=Region(cells=mypart.cells.findAt((search_point_whole,), )),
+                         sectionName=section_name, thicknessAssignment=FROM_SECTION)
 
 # Mesh
 mypart.seedPart(deviationFactor=0.1, minSizeFactor=0.1, size=meshsize)
