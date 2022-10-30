@@ -30,6 +30,7 @@ part_name = 'wheel'
 material_name = 'wheel_material'
 section_name = 'wheel_section'
 assembly_name = 'wheel-assembly'
+step_name = 'static_load'
 
 # Derived values
 search_point_whole = (0.0, r_out, width / 2)
@@ -101,6 +102,9 @@ mypart.SectionAssignment(offset=0.0, offsetField='', offsetType=MIDDLE_SURFACE,
 # Assembly
 mymodel.rootAssembly.DatumCsysByDefault(CARTESIAN)
 mymodel.rootAssembly.Instance(dependent=ON, name=assembly_name, part=mypart)
+
+# Step
+mymodel.StaticStep(name=step_name, previous='Initial')
 
 # Mesh
 mypart.seedPart(deviationFactor=0.1, minSizeFactor=0.1, size=meshsize)
