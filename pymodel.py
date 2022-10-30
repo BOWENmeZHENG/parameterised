@@ -21,6 +21,9 @@ num_spokes = 5
 meshsize = 0.02
 r_depth = 0.02
 r_pressure = 0.1
+material_name = 'wheel_material'
+E = 1e8
+mu = 0.3
 
 # Derived values
 search_point_whole = (0.0, r_out, width / 2)
@@ -80,6 +83,10 @@ for i in range(num_spokes - 1):
     mypart.SolidExtrude(depth=width, flipExtrudeDirection=ON, sketch=mysketch, sketchOrientation=RIGHT,
                         sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion)
     del mysketch
+
+# Materials
+mymodel.Material(name=material_name)
+mymodel.materials[material_name].Elastic(table=((E, mu), ))
 
 # Mesh
 mypart.seedPart(deviationFactor=0.1, minSizeFactor=0.1, size=meshsize)
