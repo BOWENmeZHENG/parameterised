@@ -23,6 +23,7 @@ r_depth = 0.02
 r_pressure = 0.1
 E = 1e8
 mu = 0.3
+load = 10000
 
 
 # Names
@@ -116,7 +117,7 @@ mypart.setElementType(elemTypes=(ElemType(elemCode=C3D8R, elemLibrary=STANDARD),
                       regions=(mypart.cells.findAt(((0.0, r_out, width / 2),), ),))
 mypart.generateMesh()
 
-# get nodes for loading
+# get nodes for loading and BC
 mypart.Set(faces=mypart.faces.findAt((search_point_lateral,), ), name='face_big')
 face_big = mypart.sets['face_big'].faces[0]
 mypart.Set(nodes=face_big.getNodes(), name='face_nodes')
@@ -124,3 +125,8 @@ face_big_nodes = mypart.sets['face_nodes'].nodes
 mypart.Set(nodes=face_big_nodes.getByBoundingCylinder(center1=(0.0, r_out - r_depth, width / 2),
                                                       center2=(0.0, r_out + r_depth, width / 2),
                                                       radius=r_pressure), name='nodes_load')
+nodes_load = mypart.sets['nodes_load'].nodes
+mypart.Set(nodes=face_big_nodes.getByBoundingCylinder(center1=(0.0, -(r_out - r_depth), width / 2),
+                                                      center2=(0.0, -(r_out + r_depth), width / 2),
+                                                      radius=r_pressure), name='nodes_bc')
+nodes_bc = mypart.sets['nodes_bc'].nodes
