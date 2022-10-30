@@ -24,10 +24,14 @@ r_pressure = 0.1
 # Derived values
 search_point_whole = (0.0, r_out, width / 2)
 search_point_lateral = (0.0, r_out, width / 2)
-search_point_extrusion = (0.0, r_in, width)
+search_point_extrusion = (0.0, r_in + 0.01, width)
 search_point_outer_edge = (0.0, r_out, width)
-spoke_start = (r_out + r_in) / 2
 
+spoke_start = (r_out + r_in) / 2
+search_points_spoke = [(-spoke_start + 0.01, spoke_width / 2),
+                       (-spoke_start + 0.01, -spoke_width / 2),
+                       (-spoke_start, 0),
+                       (spoke_start, 0)]
 
 # Define wheel geometry
 mymodel = mdb.models['Model-1']
@@ -47,11 +51,32 @@ mymodel.ConstrainedSketch(gridSpacing=0.04, name='__profile__', sheetSize=1.7,
                           transform=mypart.MakeSketchTransform(
                               sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion,
                               sketchOrientation=RIGHT, origin=(0.0, 0.0, width)))
-mypart.projectReferencesOntoSketch(filter=COPLANAR_EDGES, sketch=mymodel.sketches['__profile__'])
-mymodel.sketches['__profile__'].rectangle(point1=(-spoke_start, -spoke_width/2), point2=(spoke_start, spoke_width/2))
-mypart.SolidExtrude(depth=width, flipExtrudeDirection=ON, sketch=mymodel.sketches['__profile__'],
-                    sketchOrientation=RIGHT, sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion)
-del mymodel.sketches['__profile__']
+mysketch = mymodel.sketches['__profile__']
+mypart.projectReferencesOntoSketch(filter=COPLANAR_EDGES, sketch=mysketch)
+mysketch.rectangle(point1=(-spoke_start, -spoke_width / 2), point2=(spoke_start, spoke_width / 2))
+mypart.SolidExtrude(depth=width, flipExtrudeDirection=ON, sketch=mysketch, sketchOrientation=RIGHT,
+                    sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion)
+del mysketch
+
+# Second spoke
+face_base = mypart.faces.findAt((search_point_extrusion,), )[0]
+edge_extrusion = mypart.edges.findAt((search_point_outer_edge,), )[0]
+mymodel.ConstrainedSketch(gridSpacing=0.04, name='__profile__', sheetSize=1.7,
+                          transform=mypart.MakeSketchTransform(
+                              sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion,
+                              sketchOrientation=RIGHT, origin=(0.0, 0.0, width)))
+mysketch = mymodel.sketches['__profile__']
+mypart.projectReferencesOntoSketch(filter=COPLANAR_EDGES, sketch=mysketch)
+mysketch.rectangle(point1=(-spoke_start, -spoke_width / 2), point2=(spoke_start, spoke_width / 2))
+mysketch.rotate(angle=45.0, centerPoint=(0.0, 0.0),
+                objectList=(
+                    mysketch.geometry.findAt(search_points_spoke[0], ),
+                    mysketch.geometry.findAt(search_points_spoke[1], ),
+                    mysketch.geometry.findAt(search_points_spoke[2], ),
+                    mysketch.geometry.findAt(search_points_spoke[3], )))
+mypart.SolidExtrude(depth=width, flipExtrudeDirection=ON, sketch=mysketch, sketchOrientation=RIGHT,
+                    sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion)
+del mysketch
 
 mypart.seedPart(deviationFactor=0.1, minSizeFactor=0.1, size=meshsize)
 mypart.setMeshControls(elemShape=TET, regions=mypart.cells.findAt((search_point_whole,), ), technique=FREE)
