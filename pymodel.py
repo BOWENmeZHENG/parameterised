@@ -21,10 +21,15 @@ num_spokes = 5
 meshsize = 0.02
 r_depth = 0.02
 r_pressure = 0.1
-material_name = 'wheel_material'
 E = 1e8
 mu = 0.3
+
+
+# Names
+part_name = 'wheel'
+material_name = 'wheel_material'
 section_name = 'wheel_section'
+assembly_name = 'wheel-assembly'
 
 # Derived values
 search_point_whole = (0.0, r_out, width / 2)
@@ -45,9 +50,9 @@ mymodel = mdb.models['Model-1']
 mymodel.ConstrainedSketch(name='__profile__', sheetSize=r_out * 2)
 mymodel.sketches['__profile__'].CircleByCenterPerimeter(center=(0.0, 0.0), point1=(r_out, 0.0))
 mymodel.sketches['__profile__'].CircleByCenterPerimeter(center=(0.0, 0.0), point1=(r_in, 0.0))
-mymodel.Part(dimensionality=THREE_D, name='Part-1', type=DEFORMABLE_BODY)
+mymodel.Part(dimensionality=THREE_D, name=part_name, type=DEFORMABLE_BODY)
 
-mypart = mdb.models['Model-1'].parts['Part-1']
+mypart = mdb.models['Model-1'].parts[part_name]
 mypart.BaseSolidExtrude(depth=width, sketch=mymodel.sketches['__profile__'])
 del mymodel.sketches['__profile__']
 
@@ -92,6 +97,10 @@ mymodel.HomogeneousSolidSection(material=material_name, name=section_name, thick
 mypart.SectionAssignment(offset=0.0, offsetField='', offsetType=MIDDLE_SURFACE,
                          region=Region(cells=mypart.cells.findAt((search_point_whole,), )),
                          sectionName=section_name, thicknessAssignment=FROM_SECTION)
+
+# Assembly
+mymodel.rootAssembly.DatumCsysByDefault(CARTESIAN)
+mymodel.rootAssembly.Instance(dependent=ON, name=assembly_name, part=mypart)
 
 # Mesh
 mypart.seedPart(deviationFactor=0.1, minSizeFactor=0.1, size=meshsize)
