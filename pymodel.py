@@ -24,7 +24,7 @@ r_pressure = 0.1
 # Derived values
 search_point_whole = (0.0, r_out, width / 2)
 search_point_lateral = (0.0, r_out, width / 2)
-search_point_extrusion = (0.0, r_in + 0.01, width)
+search_point_extrusion = (0.0, (r_in + r_out) / 2, width)
 search_point_outer_edge = (0.0, r_out, width)
 
 spoke_start = (r_out + r_in) / 2
