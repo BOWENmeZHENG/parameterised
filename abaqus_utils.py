@@ -148,13 +148,13 @@ def post_process(job_name):
     return nodalS11
 
 
-def output_csv(mypart, results_location, nodalS11):
+def output_csv(mypart, results_location, nodalS11, filename):
     # Exterior nodes
     node_object = mypart.sets['all_faces'].nodes
     node_labels = [node.label for node in node_object]
 
     # Print_result
-    with open(results_location + 'nodes.csv', 'w') as f:
+    with open(results_location + filename + '_nodes.csv', 'w') as f:
         f.write('nodeid,nodetype,x,y,z,s11\n')
         for node_s11 in nodalS11.items():
             nodeid, s11 = node_s11[0], node_s11[-1]
@@ -166,7 +166,7 @@ def output_csv(mypart, results_location, nodalS11):
                 nodetype = 0
             f.write('%d,%d,%f,%f,%f,%f\n' % (nodeid, nodetype, x, y, z, s11))
 
-    with open(results_location + 'elements.csv', 'w') as f:
+    with open(results_location + filename + '_elements.csv', 'w') as f:
         f.write('elementid,node1,node2,node3,node4\n')
         for element in mypart.elements:
             f.write('%d,%d,%d,%d,%d\n' % (element.label, element.connectivity[0], element.connectivity[1],

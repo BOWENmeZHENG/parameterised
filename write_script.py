@@ -5,9 +5,9 @@ def write_pymodel(r_out=0.3, r_in=0.2, width=0.1, spoke_width=0.04, num_spokes=3
                   assembly_name='wheel-assembly', step_name='static_load', load_name='compression',
                   bc_name='fixed', job_name='wheel_compression'):
 
-    filename = f'ro_{r_out}_ri_{r_in}_w_{width}_sw_{spoke_width}_n_{num_spokes}.py'
+    filename = f'ro_{r_out}_ri_{r_in}_w_{width}_sw_{spoke_width}_n_{num_spokes}'
 
-    with open(results_location + filename, 'w') as f:
+    with open(results_location + filename + '.py', 'w') as f:
         f.write("import abaqus_utils as ut\n")
         # Derived values
         f.write(f"s_pt_whole, s_pt_lateral, s_pt_extr, s_pt_out_edge, spoke_start, s_pts_spoke = ut.derived_values({r_in}, {r_out}, {width}, {spoke_width})\n")
@@ -32,7 +32,7 @@ def write_pymodel(r_out=0.3, r_in=0.2, width=0.1, spoke_width=0.04, num_spokes=3
         # Access results
         f.write(f"nodalS11 = ut.post_process('{job_name}')\n")
         # csv files for ML
-        f.write(f"ut.output_csv(mypart, '{results_location}', nodalS11)\n")
+        f.write(f"ut.output_csv(mypart, '{results_location}', nodalS11, '{filename}')\n")
     return filename
 
 
