@@ -57,7 +57,7 @@ mymodel.sketches['__profile__'].CircleByCenterPerimeter(center=(0.0, 0.0), point
 mymodel.sketches['__profile__'].CircleByCenterPerimeter(center=(0.0, 0.0), point1=(r_in, 0.0))
 mymodel.Part(dimensionality=THREE_D, name=part_name, type=DEFORMABLE_BODY)
 
-mypart = mdb.models['Model-1'].parts[part_name]
+mypart = mymodel.parts[part_name]
 mypart.BaseSolidExtrude(depth=width, sketch=mymodel.sketches['__profile__'])
 del mymodel.sketches['__profile__']
 

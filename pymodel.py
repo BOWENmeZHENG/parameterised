@@ -20,7 +20,7 @@ r_in = 0.2
 width = 0.1
 spoke_width = 0.04
 num_spokes = 5
-meshsize = 0.02
+meshsize = 0.03
 r_depth = 0.02
 r_pressure = 0.1
 E = 1e8
@@ -43,14 +43,7 @@ s_pt_whole, s_pt_lateral, s_pt_extr, s_pt_out_edge, spoke_start, s_pts_spoke, ro
 
 # Define wheel geometry
 mymodel = mdb.models['Model-1']
-mymodel.ConstrainedSketch(name='__profile__', sheetSize=r_out * 2)
-mymodel.sketches['__profile__'].CircleByCenterPerimeter(center=(0.0, 0.0), point1=(r_out, 0.0))
-mymodel.sketches['__profile__'].CircleByCenterPerimeter(center=(0.0, 0.0), point1=(r_in, 0.0))
-mymodel.Part(dimensionality=THREE_D, name=part_name, type=DEFORMABLE_BODY)
-
-mypart = mdb.models['Model-1'].parts[part_name]
-mypart.BaseSolidExtrude(depth=width, sketch=mymodel.sketches['__profile__'])
-del mymodel.sketches['__profile__']
+mypart = ut.init_part(mymodel, r_out, r_in, width, part_name)
 
 # Define spoke geometry
 face_base = mypart.faces.findAt((s_pt_extr,), )[0]
