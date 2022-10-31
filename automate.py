@@ -1,10 +1,12 @@
+import write_script as w
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
 
 # run
-os.system("abaqus cae noGUI=pymodel.py")
+filename = w.write_pymodel(r_out=0.3, r_in=0.2, width=0.1, spoke_width=0.04, num_spokes=3)
+os.system(f"abaqus cae noGUI={filename}")
 
 # Visualize
 nodes = pd.read_csv("nodes.csv")
