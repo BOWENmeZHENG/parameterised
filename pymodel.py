@@ -19,7 +19,7 @@ r_out = 0.3
 r_in = 0.2
 width = 0.1
 spoke_width = 0.04
-num_spokes = 5
+num_spokes = 3
 meshsize = 0.03
 r_depth = 0.02
 r_pressure = 0.1
@@ -46,20 +46,14 @@ mymodel = mdb.models['Model-1']
 mypart = ut.init_part(mymodel, r_out, r_in, width, part_name)
 ut.spoke(mymodel, mypart, width, num_spokes, spoke_width, spoke_start, s_pts_spoke, s_pt_extr, s_pt_out_edge)
 
-mypart.Set(faces=mypart.faces.getByBoundingSphere(center=(0, 0, 0), radius=10.0), name='all_faces')  # set for exterior nodes
+# set for exterior nodes
+mypart.Set(faces=mypart.faces.getByBoundingSphere(center=(0, 0, 0), radius=10.0), name='all_faces')
 
 # Material & Section
-mymodel.Material(name=material_name)
-mymodel.materials[material_name].Elastic(table=((E, mu), ))
-mymodel.HomogeneousSolidSection(material=material_name, name=section_name, thickness=None)
-mypart.SectionAssignment(offset=0.0, offsetField='', offsetType=MIDDLE_SURFACE,
-                         region=Region(cells=mypart.cells.findAt((s_pt_whole,), )),
-                         sectionName=section_name, thicknessAssignment=FROM_SECTION)
+ut.mat_sect(mymodel, mypart, material_name, E, mu, section_name, s_pt_whole)
 
 # Assembly
-mymodel.rootAssembly.DatumCsysByDefault(CARTESIAN)
-mymodel.rootAssembly.Instance(dependent=ON, name=assembly_name, part=mypart)
-myassembly = mymodel.rootAssembly.instances[assembly_name]
+myassembly = ut.make_assembly(mymodel, mypart, assembly_name)
 
 # Step
 mymodel.StaticStep(name=step_name, previous='Initial')

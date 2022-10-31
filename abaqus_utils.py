@@ -61,7 +61,7 @@ def spoke(mymodel, mypart, width, num_spokes, spoke_width, spoke_start, s_pts_sp
         mysketch = mymodel.sketches['__profile__']
         mypart.projectReferencesOntoSketch(filter=COPLANAR_EDGES, sketch=mysketch)
         mysketch.rectangle(point1=(-spoke_start, -spoke_width / 2), point2=(spoke_start, spoke_width / 2))
-        mysketch.rotate(angle=180/num_spokes*(i + 1), centerPoint=(0.0, 0.0),
+        mysketch.rotate(angle=180 / num_spokes * (i + 1), centerPoint=(0.0, 0.0),
                         objectList=(
                             mysketch.geometry.findAt(s_pts_spoke[0], ),
                             mysketch.geometry.findAt(s_pts_spoke[1], ),
@@ -70,3 +70,19 @@ def spoke(mymodel, mypart, width, num_spokes, spoke_width, spoke_start, s_pts_sp
         mypart.SolidExtrude(depth=width, flipExtrudeDirection=ON, sketch=mysketch, sketchOrientation=RIGHT,
                             sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion)
         del mysketch
+
+
+def mat_sect(mymodel, mypart, material_name, E, mu, section_name, s_pt_whole):
+    mymodel.Material(name=material_name)
+    mymodel.materials[material_name].Elastic(table=((E, mu),))
+    mymodel.HomogeneousSolidSection(material=material_name, name=section_name, thickness=None)
+    mypart.SectionAssignment(offset=0.0, offsetField='', offsetType=MIDDLE_SURFACE,
+                             region=Region(cells=mypart.cells.findAt((s_pt_whole,), )),
+                             sectionName=section_name, thicknessAssignment=FROM_SECTION)
+
+
+def make_assembly(mymodel, mypart, assembly_name):
+    mymodel.rootAssembly.DatumCsysByDefault(CARTESIAN)
+    mymodel.rootAssembly.Instance(dependent=ON, name=assembly_name, part=mypart)
+    myassembly = mymodel.rootAssembly.instances[assembly_name]
+    return myassembly
