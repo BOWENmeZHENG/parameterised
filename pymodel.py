@@ -1,5 +1,3 @@
-from visualization import *
-
 import abaqus_utils as ut
 
 # Constants
