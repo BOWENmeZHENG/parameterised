@@ -58,25 +58,5 @@ ut.job(job_name)
 # Access results
 nodalS11 = ut.post_process(job_name)
 
-# Exterior nodes
-node_object = mypart.sets['all_faces'].nodes
-node_labels = [node.label for node in node_object]
-
-# Print_result
-with open(results_location + 'nodes.csv', 'w') as f:
-    f.write('nodeid,nodetype,x,y,z,s11\n')
-    for node_s11 in nodalS11.items():
-        nodeid, s11 = node_s11[0], node_s11[-1]
-        meshnode_object = mypart.nodes[nodeid - 1]
-        x, y, z = meshnode_object.coordinates[0], meshnode_object.coordinates[1], meshnode_object.coordinates[2]
-        if nodeid in node_labels:
-            nodetype = 1
-        else:
-            nodetype = 0
-        f.write('%d,%d,%f,%f,%f,%f\n' % (nodeid, nodetype, x, y, z, s11))
-
-with open(results_location + 'elements.csv', 'w') as f:
-    f.write('elementid,node1,node2,node3,node4\n')
-    for element in mypart.elements:
-        f.write('%d,%d,%d,%d,%d\n' % (element.label, element.connectivity[0], element.connectivity[1],
-                                      element.connectivity[2], element.connectivity[3]))
+# csv files for ML
+ut.output_csv(mypart, results_location, nodalS11)
