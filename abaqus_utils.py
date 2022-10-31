@@ -125,3 +125,24 @@ def job(job_name):
             nodalOutputPrecision=SINGLE, numCpus=1, numGPUs=0, queue=None, resultsFormat=ODB, scratch='',
             type=ANALYSIS, userSubroutine='', waitHours=0, waitMinutes=0)
     mdb.jobs[job_name].submit(consistencyChecking=OFF)
+
+
+def post_process(job_name):
+    odb_name = job_name + '.odb'
+    odb = openOdb(path=odb_name, readOnly=True)
+    odb_assembly = odb.rootAssembly
+    odb_step1 = odb.steps.values()[0]
+    frame = odb.steps[odb_step1.name].frames[-1]
+    elemStress = frame.fieldOutputs['S']
+    odb_set_whole = odb_assembly.elementSets[' ALL ELEMENTS']
+    field = elemStress.getSubset(region=odb_set_whole, position=ELEMENT_NODAL)
+
+    nodalS11 = {}
+    for value in field.values:
+        if value.nodeLabel in nodalS11:
+            nodalS11[value.nodeLabel].append(value.data[0])
+        else:
+            nodalS11.update({value.nodeLabel: [value.data[0]]})
+    for key in nodalS11:
+        nodalS11.update({key: sum(nodalS11[key]) / len(nodalS11[key])})
+    return nodalS11

@@ -58,24 +58,7 @@ ut.load_bc(mymodel, mypart, myassembly, step_name, load_name, bc_name,
 ut.job(job_name)
 
 # Access results
-odb_name = job_name + '.odb'
-odb = openOdb(path=odb_name, readOnly=True)
-odb_assembly = odb.rootAssembly
-odb_instance = odb_assembly.instances.keys()[0]
-odb_step1 = odb.steps.values()[0]
-frame = odb.steps[odb_step1.name].frames[-1]
-elemStress = frame.fieldOutputs['S']
-odb_set_whole = odb_assembly.elementSets[' ALL ELEMENTS']
-field = elemStress.getSubset(region=odb_set_whole, position=ELEMENT_NODAL)
-
-nodalS11 = {}
-for value in field.values:
-    if value.nodeLabel in nodalS11:
-        nodalS11[value.nodeLabel].append(value.data[0])
-    else:
-        nodalS11.update({value.nodeLabel: [value.data[0]]})
-for key in nodalS11:
-    nodalS11.update({key: sum(nodalS11[key]) / len(nodalS11[key])})
+nodalS11 = ut.post_process(job_name)
 
 # Exterior nodes
 node_object = mypart.sets['all_faces'].nodes
