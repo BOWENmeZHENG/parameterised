@@ -39,7 +39,8 @@ bc_name = 'fixed'
 job_name = 'wheel_compression'
 
 # Derived values
-s_pt_whole, s_pt_lateral, s_pt_extr, s_pt_out_edge, spoke_start, s_pts_spoke = ut.derived_values(r_in, r_out, width, spoke_width)
+s_pt_whole, s_pt_lateral, s_pt_extr, s_pt_out_edge, spoke_start, s_pts_spoke = ut.derived_values(r_in, r_out, width,
+                                                                                                 spoke_width)
 
 # Define wheel geometry
 mymodel = mdb.models['Model-1']
@@ -61,26 +62,9 @@ mymodel.StaticStep(name=step_name, previous='Initial')
 # Mesh
 ut.make_mesh(mypart, meshsize, s_pt_whole, r_out, width)
 
-# get nodes for loading and BC
-mypart.Set(faces=mypart.faces.findAt((s_pt_lateral,), ), name='face_big')
-face_big = mypart.sets['face_big'].faces[0]
-mypart.Set(nodes=face_big.getNodes(), name='face_nodes')
-face_big_nodes = mypart.sets['face_nodes'].nodes
-mypart.Set(nodes=face_big_nodes.getByBoundingCylinder(center1=(0.0, r_out - r_depth, width / 2),
-                                                      center2=(0.0, r_out + r_depth, width / 2),
-                                                      radius=r_pressure), name='nodes_load')
-nodes_load = mypart.sets['nodes_load'].nodes
-mypart.Set(nodes=face_big_nodes.getByBoundingCylinder(center1=(0.0, -(r_out - r_depth), width / 2),
-                                                      center2=(0.0, -(r_out + r_depth), width / 2),
-                                                      radius=r_pressure), name='nodes_bc')
-nodes_bc = mypart.sets['nodes_bc'].nodes
-
-# Load & BC
-num_nodes_load = len(nodes_load)
-mymodel.ConcentratedForce(cf2=-load/num_nodes_load, createStepName=step_name,
-                          distributionType=UNIFORM, field='', localCsys=None, name=load_name,
-                          region=myassembly.sets['nodes_load'])
-mymodel.EncastreBC(createStepName=step_name, localCsys=None, name=bc_name, region=myassembly.sets['nodes_bc'])
+# Loading & BC
+ut.load_bc(mymodel, mypart, myassembly, step_name, load_name, bc_name,
+           r_out, width, r_depth, r_pressure, load, s_pt_lateral)
 
 # Job
 mdb.Job(atTime=None, contactPrint=OFF, description='', echoPrint=OFF, explicitPrecision=SINGLE,
@@ -131,4 +115,4 @@ with open(results_location + 'elements.csv', 'w') as f:
     f.write('elementid,node1,node2,node3,node4\n')
     for element in mypart.elements:
         f.write('%d,%d,%d,%d,%d\n' % (element.label, element.connectivity[0], element.connectivity[1],
-                                   element.connectivity[2], element.connectivity[3]))
+                                      element.connectivity[2], element.connectivity[3]))

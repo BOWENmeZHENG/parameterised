@@ -97,3 +97,22 @@ def make_mesh(mypart, meshsize, s_pt_whole, r_out, width):
                                               secondOrderAccuracy=OFF, distortionControl=DEFAULT)),
                           regions=(mypart.cells.findAt(((0.0, r_out, width / 2),), ),))
     mypart.generateMesh()
+
+
+def load_bc(mymodel, mypart, myassembly, step_name, load_name, bc_name,
+            r_out, width, r_depth, r_pressure, load, s_pt_lateral):
+    mypart.Set(faces=mypart.faces.findAt((s_pt_lateral,), ), name='face_big')
+    face_big = mypart.sets['face_big'].faces[0]
+    mypart.Set(nodes=face_big.getNodes(), name='face_nodes')
+    face_big_nodes = mypart.sets['face_nodes'].nodes
+    mypart.Set(nodes=face_big_nodes.getByBoundingCylinder(center1=(0.0, r_out - r_depth, width / 2),
+                                                          center2=(0.0, r_out + r_depth, width / 2),
+                                                          radius=r_pressure), name='nodes_load')
+    mypart.Set(nodes=face_big_nodes.getByBoundingCylinder(center1=(0.0, -(r_out - r_depth), width / 2),
+                                                          center2=(0.0, -(r_out + r_depth), width / 2),
+                                                          radius=r_pressure), name='nodes_bc')
+    num_nodes_load = len(mypart.sets['nodes_load'].nodes)
+    mymodel.ConcentratedForce(cf2=-load / num_nodes_load, createStepName=step_name,
+                              distributionType=UNIFORM, field='', localCsys=None, name=load_name,
+                              region=myassembly.sets['nodes_load'])
+    mymodel.EncastreBC(createStepName=step_name, localCsys=None, name=bc_name, region=myassembly.sets['nodes_bc'])
