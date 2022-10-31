@@ -32,6 +32,8 @@ material_name = 'wheel_material'
 section_name = 'wheel_section'
 assembly_name = 'wheel-assembly'
 step_name = 'static_load'
+load_name = 'compression'
+bc_name = 'fixed'
 
 # Derived values
 search_point_whole = (0.0, r_out, width / 2)
@@ -103,6 +105,7 @@ mypart.SectionAssignment(offset=0.0, offsetField='', offsetType=MIDDLE_SURFACE,
 # Assembly
 mymodel.rootAssembly.DatumCsysByDefault(CARTESIAN)
 mymodel.rootAssembly.Instance(dependent=ON, name=assembly_name, part=mypart)
+myassembly = mymodel.rootAssembly.instances[assembly_name]
 
 # Step
 mymodel.StaticStep(name=step_name, previous='Initial')
@@ -130,3 +133,10 @@ mypart.Set(nodes=face_big_nodes.getByBoundingCylinder(center1=(0.0, -(r_out - r_
                                                       center2=(0.0, -(r_out + r_depth), width / 2),
                                                       radius=r_pressure), name='nodes_bc')
 nodes_bc = mypart.sets['nodes_bc'].nodes
+
+# Load & BC
+num_nodes_load = len(nodes_load)
+mymodel.ConcentratedForce(cf2=-load/num_nodes_load, createStepName=step_name,
+                          distributionType=UNIFORM, field='', localCsys=None, name=load_name,
+                          region=myassembly.sets['nodes_load'])
+mymodel.EncastreBC(createStepName=step_name, localCsys=None, name=bc_name, region=myassembly.sets['nodes_bc'])
