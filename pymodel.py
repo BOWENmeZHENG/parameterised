@@ -34,6 +34,7 @@ assembly_name = 'wheel-assembly'
 step_name = 'static_load'
 load_name = 'compression'
 bc_name = 'fixed'
+job_name = 'wheel_compression'
 
 # Derived values
 search_point_whole = (0.0, r_out, width / 2)
@@ -140,3 +141,11 @@ mymodel.ConcentratedForce(cf2=-load/num_nodes_load, createStepName=step_name,
                           distributionType=UNIFORM, field='', localCsys=None, name=load_name,
                           region=myassembly.sets['nodes_load'])
 mymodel.EncastreBC(createStepName=step_name, localCsys=None, name=bc_name, region=myassembly.sets['nodes_bc'])
+
+# Job
+mdb.Job(atTime=None, contactPrint=OFF, description='', echoPrint=OFF, explicitPrecision=SINGLE,
+        getMemoryFromAnalysis=True, historyPrint=OFF, memory=90, memoryUnits=PERCENTAGE,
+        model='Model-1', modelPrint=OFF, multiprocessingMode=DEFAULT, name=job_name,
+        nodalOutputPrecision=SINGLE, numCpus=1, numGPUs=0, queue=None, resultsFormat=ODB, scratch='',
+        type=ANALYSIS, userSubroutine='', waitHours=0, waitMinutes=0)
+mdb.jobs[job_name].submit(consistencyChecking=OFF)
