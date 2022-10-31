@@ -59,14 +59,7 @@ myassembly = ut.make_assembly(mymodel, mypart, assembly_name)
 mymodel.StaticStep(name=step_name, previous='Initial')
 
 # Mesh
-mypart.seedPart(deviationFactor=0.1, minSizeFactor=0.1, size=meshsize)
-mypart.setMeshControls(elemShape=TET, regions=mypart.cells.findAt((s_pt_whole,), ), technique=FREE)
-mypart.setElementType(elemTypes=(ElemType(elemCode=C3D8R, elemLibrary=STANDARD),
-                                 ElemType(elemCode=C3D6, elemLibrary=STANDARD),
-                                 ElemType(elemCode=C3D4, elemLibrary=STANDARD,
-                                          secondOrderAccuracy=OFF, distortionControl=DEFAULT)),
-                      regions=(mypart.cells.findAt(((0.0, r_out, width / 2),), ),))
-mypart.generateMesh()
+ut.make_mesh(mypart, meshsize, s_pt_whole, r_out, width)
 
 # get nodes for loading and BC
 mypart.Set(faces=mypart.faces.findAt((s_pt_lateral,), ), name='face_big')

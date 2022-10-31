@@ -86,3 +86,14 @@ def make_assembly(mymodel, mypart, assembly_name):
     mymodel.rootAssembly.Instance(dependent=ON, name=assembly_name, part=mypart)
     myassembly = mymodel.rootAssembly.instances[assembly_name]
     return myassembly
+
+
+def make_mesh(mypart, meshsize, s_pt_whole, r_out, width):
+    mypart.seedPart(deviationFactor=0.1, minSizeFactor=0.1, size=meshsize)
+    mypart.setMeshControls(elemShape=TET, regions=mypart.cells.findAt((s_pt_whole,), ), technique=FREE)
+    mypart.setElementType(elemTypes=(ElemType(elemCode=C3D8R, elemLibrary=STANDARD),
+                                     ElemType(elemCode=C3D6, elemLibrary=STANDARD),
+                                     ElemType(elemCode=C3D4, elemLibrary=STANDARD,
+                                              secondOrderAccuracy=OFF, distortionControl=DEFAULT)),
+                          regions=(mypart.cells.findAt(((0.0, r_out, width / 2),), ),))
+    mypart.generateMesh()
