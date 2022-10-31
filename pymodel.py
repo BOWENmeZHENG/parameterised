@@ -39,48 +39,14 @@ bc_name = 'fixed'
 job_name = 'wheel_compression'
 
 # Derived values
-s_pt_whole, s_pt_lateral, s_pt_extr, s_pt_out_edge, spoke_start, s_pts_spoke, rot_angle = ut.derived_values(r_in, r_out, width, num_spokes, spoke_width)
+s_pt_whole, s_pt_lateral, s_pt_extr, s_pt_out_edge, spoke_start, s_pts_spoke = ut.derived_values(r_in, r_out, width, spoke_width)
 
 # Define wheel geometry
 mymodel = mdb.models['Model-1']
 mypart = ut.init_part(mymodel, r_out, r_in, width, part_name)
+ut.spoke(mymodel, mypart, width, num_spokes, spoke_width, spoke_start, s_pts_spoke, s_pt_extr, s_pt_out_edge)
 
-# Define spoke geometry
-face_base = mypart.faces.findAt((s_pt_extr,), )[0]
-edge_extrusion = mypart.edges.findAt((s_pt_out_edge,), )[0]
-mymodel.ConstrainedSketch(gridSpacing=0.04, name='__profile__', sheetSize=1.7,
-                          transform=mypart.MakeSketchTransform(
-                              sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion,
-                              sketchOrientation=RIGHT, origin=(0.0, 0.0, width)))
-mysketch = mymodel.sketches['__profile__']
-mypart.projectReferencesOntoSketch(filter=COPLANAR_EDGES, sketch=mysketch)
-mysketch.rectangle(point1=(-spoke_start, -spoke_width / 2), point2=(spoke_start, spoke_width / 2))
-mypart.SolidExtrude(depth=width, flipExtrudeDirection=ON, sketch=mysketch, sketchOrientation=RIGHT,
-                    sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion)
-del mysketch
-
-for i in range(num_spokes - 1):
-    face_base = mypart.faces.findAt((s_pt_extr,), )[0]
-    edge_extrusion = mypart.edges.findAt((s_pt_out_edge,), )[0]
-    mymodel.ConstrainedSketch(gridSpacing=0.04, name='__profile__', sheetSize=1.7,
-                              transform=mypart.MakeSketchTransform(
-                                  sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion,
-                                  sketchOrientation=RIGHT, origin=(0.0, 0.0, width)))
-    mysketch = mymodel.sketches['__profile__']
-    mypart.projectReferencesOntoSketch(filter=COPLANAR_EDGES, sketch=mysketch)
-    mysketch.rectangle(point1=(-spoke_start, -spoke_width / 2), point2=(spoke_start, spoke_width / 2))
-    mysketch.rotate(angle=rot_angle * (i + 1), centerPoint=(0.0, 0.0),
-                    objectList=(
-                        mysketch.geometry.findAt(s_pts_spoke[0], ),
-                        mysketch.geometry.findAt(s_pts_spoke[1], ),
-                        mysketch.geometry.findAt(s_pts_spoke[2], ),
-                        mysketch.geometry.findAt(s_pts_spoke[3], )))
-    mypart.SolidExtrude(depth=width, flipExtrudeDirection=ON, sketch=mysketch, sketchOrientation=RIGHT,
-                        sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion)
-    del mysketch
-
-mypart.Set(faces=mypart.faces.getByBoundingSphere(center=(0, 0, 0), radius=10.0),
-           name='all_faces')  # set for exterior nodes
+mypart.Set(faces=mypart.faces.getByBoundingSphere(center=(0, 0, 0), radius=10.0), name='all_faces')  # set for exterior nodes
 
 # Material & Section
 mymodel.Material(name=material_name)
