@@ -67,12 +67,7 @@ ut.load_bc(mymodel, mypart, myassembly, step_name, load_name, bc_name,
            r_out, width, r_depth, r_pressure, load, s_pt_lateral)
 
 # Job
-mdb.Job(atTime=None, contactPrint=OFF, description='', echoPrint=OFF, explicitPrecision=SINGLE,
-        getMemoryFromAnalysis=True, historyPrint=OFF, memory=90, memoryUnits=PERCENTAGE,
-        model='Model-1', modelPrint=OFF, multiprocessingMode=DEFAULT, name=job_name,
-        nodalOutputPrecision=SINGLE, numCpus=1, numGPUs=0, queue=None, resultsFormat=ODB, scratch='',
-        type=ANALYSIS, userSubroutine='', waitHours=0, waitMinutes=0)
-mdb.jobs[job_name].submit(consistencyChecking=OFF)
+ut.job(job_name)
 
 # Access results
 odb_name = job_name + '.odb'

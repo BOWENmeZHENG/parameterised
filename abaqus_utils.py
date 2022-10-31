@@ -116,3 +116,12 @@ def load_bc(mymodel, mypart, myassembly, step_name, load_name, bc_name,
                               distributionType=UNIFORM, field='', localCsys=None, name=load_name,
                               region=myassembly.sets['nodes_load'])
     mymodel.EncastreBC(createStepName=step_name, localCsys=None, name=bc_name, region=myassembly.sets['nodes_bc'])
+
+
+def job(job_name):
+    mdb.Job(atTime=None, contactPrint=OFF, description='', echoPrint=OFF, explicitPrecision=SINGLE,
+            getMemoryFromAnalysis=True, historyPrint=OFF, memory=90, memoryUnits=PERCENTAGE,
+            model='Model-1', modelPrint=OFF, multiprocessingMode=DEFAULT, name=job_name,
+            nodalOutputPrecision=SINGLE, numCpus=1, numGPUs=0, queue=None, resultsFormat=ODB, scratch='',
+            type=ANALYSIS, userSubroutine='', waitHours=0, waitMinutes=0)
+    mdb.jobs[job_name].submit(consistencyChecking=OFF)
