@@ -4,8 +4,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def run_model(r_out, r_in, width, spoke_width, num_spokes, vis=False):
-    filename = w.write_pymodel(r_out=r_out, r_in=r_in, width=width, spoke_width=spoke_width, num_spokes=num_spokes)
+def run_model(r_out, r_in, width, spoke_width, num_spokes, meshsize, vis=False):
+    filename = w.write_pymodel(r_out=r_out, r_in=r_in, width=width,
+                               spoke_width=spoke_width, num_spokes=num_spokes, meshsize=meshsize)
     os.system(f"abaqus cae noGUI={filename}")
     os.remove(filename + '.py')
     for f in glob.glob("wheel_compression.*"):
