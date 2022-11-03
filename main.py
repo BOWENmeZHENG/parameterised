@@ -9,7 +9,7 @@ seed = 222
 folder_name = f'{date.today()}_num_{num}_seed_{seed}'
 os.makedirs(folder_name, exist_ok=True)
 
-np.random.seed(222)
+np.random.seed(seed)
 r_out = 0.1 * np.random.rand(num) + 0.2  # range: [0.2, 0.3]
 r_in = r_out - (0.05 * np.random.rand(num) + 0.05)  # range: r_out - [0.05, 0.1]
 width = 0.1 + 0.1 * np.random.rand(num)  # # range: [0.1, 0.2]

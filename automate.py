@@ -14,7 +14,7 @@ def run_model(r_out, r_in, width, spoke_width, num_spokes, meshsize, vis=False):
     for f in glob.glob("abaqus.rp*"):
         os.remove(f)
 
-        # Visualize
+    # Visualize
     if vis:
         nodes = pd.read_csv(f"{filename}_nodes.csv")
         x, y, z = nodes.x, nodes.y, nodes.z
