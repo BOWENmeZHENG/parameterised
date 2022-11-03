@@ -1,10 +1,15 @@
 from automate import run_model
 import os, shutil
 import numpy as np
+from datetime import date
 
-os.makedirs('data', exist_ok=True)
-num = 5
-np.random.seed(100)
+
+num = 50
+seed = 222
+folder_name = f'{date.today()}_num_{num}_seed_{seed}'
+os.makedirs(folder_name, exist_ok=True)
+
+np.random.seed(222)
 r_out = 0.1 * np.random.rand(num) + 0.2  # range: [0.2, 0.3]
 r_in = r_out - (0.05 * np.random.rand(num) + 0.05)  # range: r_out - [0.05, 0.1]
 width = 0.1 + 0.1 * np.random.rand(num)  # # range: [0.1, 0.2]
@@ -19,4 +24,4 @@ for i in range(num):
 files = os.listdir('./')
 for file in files:
     if file.endswith('.csv'):
-        shutil.move(file, 'data/' + file)
+        shutil.move(file, f'{folder_name}/{file}')
