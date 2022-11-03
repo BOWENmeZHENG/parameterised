@@ -5,7 +5,7 @@ def write_pymodel(r_out=0.3, r_in=0.2, width=0.1, spoke_width=0.04, num_spokes=3
                   assembly_name='wheel-assembly', step_name='static_load', load_name='compression',
                   bc_name='fixed', job_name='wheel_compression'):
 
-    filename = f'ro_{r_out}_ri_{r_in}_w_{width}_sw_{spoke_width}_n_{num_spokes}'
+    filename = f'ro_{r_out:.3f}_ri_{r_in:.3f}_w_{width:.3f}_sw_{spoke_width:.3f}_n_{num_spokes}'
 
     with open(results_location + filename + '.py', 'w') as f:
         f.write("import abaqus_utils as ut\n")
