@@ -18,7 +18,7 @@ num_spokes = np.random.randint(low=2, high=7, size=num)
 
 for i in range(num):
     run_model(r_out=r_out[i], r_in=r_in[i], width=width[i],
-              spoke_width=spoke_width[i], num_spokes=num_spokes[i], meshsize=0.02, vis=True)
+              spoke_width=spoke_width[i], num_spokes=num_spokes[i], meshsize=0.02, vis=False)
 
 # move csv files to folder
 files = os.listdir('./')
