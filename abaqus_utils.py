@@ -37,21 +37,22 @@ def init_part(mymodel, r_out, r_in, width, part_name):
     return mypart
 
 
-def spoke(mymodel, mypart, width, num_spokes, spoke_width, spoke_start, s_pts_spoke, s_pt_extr, s_pt_out_edge):
-    face_base = mypart.faces.findAt((s_pt_extr,), )[0]
-    edge_extrusion = mypart.edges.findAt((s_pt_out_edge,), )[0]
-    mymodel.ConstrainedSketch(gridSpacing=0.04, name='__profile__', sheetSize=1.7,
-                              transform=mypart.MakeSketchTransform(
-                                  sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion,
-                                  sketchOrientation=RIGHT, origin=(0.0, 0.0, width)))
-    mysketch = mymodel.sketches['__profile__']
-    mypart.projectReferencesOntoSketch(filter=COPLANAR_EDGES, sketch=mysketch)
-    mysketch.rectangle(point1=(-spoke_start, -spoke_width / 2), point2=(spoke_start, spoke_width / 2))
-    mypart.SolidExtrude(depth=width, flipExtrudeDirection=ON, sketch=mysketch, sketchOrientation=RIGHT,
-                        sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion)
-    del mysketch
+def spoke(mymodel, mypart, width, num_spokes, spoke_width, init_angle,
+          spoke_start, s_pts_spoke, s_pt_extr, s_pt_out_edge):
+    # face_base = mypart.faces.findAt((s_pt_extr,), )[0]
+    # edge_extrusion = mypart.edges.findAt((s_pt_out_edge,), )[0]
+    # mymodel.ConstrainedSketch(gridSpacing=0.04, name='__profile__', sheetSize=1.7,
+    #                           transform=mypart.MakeSketchTransform(
+    #                               sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion,
+    #                               sketchOrientation=RIGHT, origin=(0.0, 0.0, width)))
+    # mysketch = mymodel.sketches['__profile__']
+    # mypart.projectReferencesOntoSketch(filter=COPLANAR_EDGES, sketch=mysketch)
+    # mysketch.rectangle(point1=(-spoke_start, -spoke_width / 2), point2=(spoke_start, spoke_width / 2))
+    # mypart.SolidExtrude(depth=width, flipExtrudeDirection=ON, sketch=mysketch, sketchOrientation=RIGHT,
+    #                     sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion)
+    # del mysketch
 
-    for i in range(num_spokes - 1):
+    for i in range(num_spokes):
         face_base = mypart.faces.findAt((s_pt_extr,), )[0]
         edge_extrusion = mypart.edges.findAt((s_pt_out_edge,), )[0]
         mymodel.ConstrainedSketch(gridSpacing=0.04, name='__profile__', sheetSize=1.7,
@@ -61,7 +62,7 @@ def spoke(mymodel, mypart, width, num_spokes, spoke_width, spoke_start, s_pts_sp
         mysketch = mymodel.sketches['__profile__']
         mypart.projectReferencesOntoSketch(filter=COPLANAR_EDGES, sketch=mysketch)
         mysketch.rectangle(point1=(-spoke_start, -spoke_width / 2), point2=(spoke_start, spoke_width / 2))
-        mysketch.rotate(angle=180 / num_spokes * (i + 1), centerPoint=(0.0, 0.0),
+        mysketch.rotate(angle=180 / num_spokes * i + init_angle, centerPoint=(0.0, 0.0),
                         objectList=(
                             mysketch.geometry.findAt(s_pts_spoke[0], ),
                             mysketch.geometry.findAt(s_pts_spoke[1], ),

@@ -4,9 +4,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def run_model(r_out, r_in, width, spoke_width, num_spokes, E, load, meshsize, vis=False):
+def run_model(r_out, r_in, width, spoke_width, num_spokes, init_angle, E, load, meshsize, vis=False):
     filename = w.write_pymodel(r_out=r_out, r_in=r_in, width=width,
-                               spoke_width=spoke_width, num_spokes=num_spokes,
+                               spoke_width=spoke_width, num_spokes=num_spokes, init_angle=init_angle,
                                E=E, load=load, meshsize=meshsize)
     os.system(f"abaqus cae noGUI={filename}")
     os.remove(filename + '.py')

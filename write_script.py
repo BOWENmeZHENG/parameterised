@@ -1,11 +1,11 @@
-def write_pymodel(r_out=0.3, r_in=0.2, width=0.1, spoke_width=0.04, num_spokes=3,
+def write_pymodel(r_out=0.3, r_in=0.2, width=0.1, spoke_width=0.04, num_spokes=3, init_angle=0,
                   E=1e8, mu=0.3, load=10000, meshsize=0.03, r_depth=0.02, r_pressure=0.1,
                   results_location='C:/Users/bowen/Desktop/abaqus_python/parameterised/',
                   part_name='wheel', material_name='wheel_material', section_name='wheel_section',
                   assembly_name='wheel-assembly', step_name='static_load', load_name='compression',
                   bc_name='fixed', job_name='wheel_compression'):
 
-    filename = f'ro_{r_out:.3f}_ri_{r_in:.3f}_w_{width:.3f}_sw_{spoke_width:.3f}_n_{num_spokes}_E_{E:.1f}_l_{load:.1f}'
+    filename = f'ro_{r_out:.3f}_ri_{r_in:.3f}_w_{width:.3f}_sw_{spoke_width:.3f}_n_{num_spokes}_E_{E:.1f}_l_{load:.1f}_rot_{init_angle:.1f}'
 
     with open(results_location + filename + '.py', 'w') as f:
         f.write("import abaqus_utils as ut\n")
@@ -14,7 +14,7 @@ def write_pymodel(r_out=0.3, r_in=0.2, width=0.1, spoke_width=0.04, num_spokes=3
         # Define wheel geometry
         f.write("mymodel = mdb.models['Model-1']\n")
         f.write(f"mypart = ut.init_part(mymodel, {r_out}, {r_in}, {width}, '{part_name}')\n")
-        f.write(f"ut.spoke(mymodel, mypart, {width}, {num_spokes}, {spoke_width}, spoke_start, s_pts_spoke, s_pt_extr, s_pt_out_edge)\n")
+        f.write(f"ut.spoke(mymodel, mypart, {width}, {num_spokes}, {spoke_width}, {init_angle}, spoke_start, s_pts_spoke, s_pt_extr, s_pt_out_edge)\n")
         # Set for exterior nodes
         f.write("mypart.Set(faces=mypart.faces.getByBoundingSphere(center=(0, 0, 0), radius=10.0), name='all_faces')\n")
         # Material & Section
