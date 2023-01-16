@@ -160,38 +160,41 @@ odb_assembly = odb.rootAssembly
 odb_instance = odb_assembly.instances.keys()[0]
 odb_step1 = odb.steps.values()[0]
 frame = odb.steps[odb_step1.name].frames[-1]
+# print(frame.fieldOutputs['S'].values[0])
 elemStress = frame.fieldOutputs['S']
 odb_set_whole = odb_assembly.elementSets[' ALL ELEMENTS']
 field = elemStress.getSubset(region=odb_set_whole, position=ELEMENT_NODAL)
+print(field.values[0])
 
 nodalS11 = {}
 for value in field.values:
     if value.nodeLabel in nodalS11:
-        nodalS11[value.nodeLabel].append(value.data[0])
+        nodalS11[value.nodeLabel].append(value.data[1])
     else:
-        nodalS11.update({value.nodeLabel: [value.data[0]]})
+        nodalS11.update({value.nodeLabel: [value.data[1]]})
 for key in nodalS11:
     nodalS11.update({key: sum(nodalS11[key]) / len(nodalS11[key])})
 
+print(max(nodalS11.values()))
 # Exterior nodes
 node_object = mypart.sets['all_faces'].nodes
 node_labels = [node.label for node in node_object]
 
 # Print_result
-with open(results_location + 'nodes.csv', 'w') as f:
-    f.write('nodeid,nodetype,x,y,z,s11\n')
-    for node_s11 in nodalS11.items():
-        nodeid, s11 = node_s11[0], node_s11[-1]
-        meshnode_object = mypart.nodes[nodeid - 1]
-        x, y, z = meshnode_object.coordinates[0], meshnode_object.coordinates[1], meshnode_object.coordinates[2]
-        if nodeid in node_labels:
-            nodetype = 1
-        else:
-            nodetype = 0
-        f.write('%d,%d,%f,%f,%f,%f\n' % (nodeid, nodetype, x, y, z, s11))
+# with open(results_location + 'nodes.csv', 'w') as f:
+#     f.write('nodeid,nodetype,x,y,z,s11\n')
+#     for node_s11 in nodalS11.items():
+#         nodeid, s11 = node_s11[0], node_s11[-1]
+#         meshnode_object = mypart.nodes[nodeid - 1]
+#         x, y, z = meshnode_object.coordinates[0], meshnode_object.coordinates[1], meshnode_object.coordinates[2]
+#         if nodeid in node_labels:
+#             nodetype = 1
+#         else:
+#             nodetype = 0
+#         f.write('%d,%d,%f,%f,%f,%f\n' % (nodeid, nodetype, x, y, z, s11))
 
-with open(results_location + 'elements.csv', 'w') as f:
-    f.write('elementid,node1,node2,node3,node4\n')
-    for element in mypart.elements:
-        f.write('%d,%d,%d,%d,%d\n' % (element.label, element.connectivity[0], element.connectivity[1],
-                                   element.connectivity[2], element.connectivity[3]))
+# with open(results_location + 'elements.csv', 'w') as f:
+#     f.write('elementid,node1,node2,node3,node4\n')
+#     for element in mypart.elements:
+#         f.write('%d,%d,%d,%d,%d\n' % (element.label, element.connectivity[0], element.connectivity[1],
+#                                    element.connectivity[2], element.connectivity[3]))

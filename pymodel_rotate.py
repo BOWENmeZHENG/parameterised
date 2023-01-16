@@ -24,7 +24,7 @@ r_pressure = 0.1
 E = 1e8
 mu = 0.3
 load = 10000
-init_angle = 20
+init_angle = 0
 results_location = 'C:/Users/bowen/Desktop/'
 
 # Names
@@ -61,20 +61,6 @@ mymodel.Part(dimensionality=THREE_D, name=part_name, type=DEFORMABLE_BODY)
 mypart = mymodel.parts[part_name]
 mypart.BaseSolidExtrude(depth=width, sketch=mymodel.sketches['__profile__'])
 del mymodel.sketches['__profile__']
-
-# Define spoke geometry
-# face_base = mypart.faces.findAt((search_point_extrusion,), )[0]
-# edge_extrusion = mypart.edges.findAt((search_point_outer_edge,), )[0]
-# mymodel.ConstrainedSketch(gridSpacing=0.04, name='__profile__', sheetSize=1.7,
-                          # transform=mypart.MakeSketchTransform(
-                              # sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion,
-                              # sketchOrientation=RIGHT, origin=(0.0, 0.0, width)))
-# mysketch = mymodel.sketches['__profile__']
-# mypart.projectReferencesOntoSketch(filter=COPLANAR_EDGES, sketch=mysketch)
-# mysketch.rectangle(point1=(-spoke_start, -spoke_width / 2), point2=(spoke_start, spoke_width / 2))
-# mypart.SolidExtrude(depth=width, flipExtrudeDirection=ON, sketch=mysketch, sketchOrientation=RIGHT,
-                    # sketchPlane=face_base, sketchPlaneSide=SIDE1, sketchUpEdge=edge_extrusion)
-# del mysketch
 
 for i in range(num_spokes):
     face_base = mypart.faces.findAt((search_point_extrusion,), )[0]
@@ -164,35 +150,18 @@ frame = odb.steps[odb_step1.name].frames[-1]
 elemStress = frame.fieldOutputs['S']
 odb_set_whole = odb_assembly.elementSets[' ALL ELEMENTS']
 field = elemStress.getSubset(region=odb_set_whole, position=ELEMENT_NODAL)
-
 nodalS11 = {}
 for value in field.values:
     if value.nodeLabel in nodalS11:
-        nodalS11[value.nodeLabel].append(value.data[0])
+        nodalS11[value.nodeLabel].append(value.data[3])
     else:
-        nodalS11.update({value.nodeLabel: [value.data[0]]})
+        nodalS11.update({value.nodeLabel: [value.data[3]]})
 for key in nodalS11:
     nodalS11.update({key: sum(nodalS11[key]) / len(nodalS11[key])})
+max_value = max(nodalS11.values())
+print(nodalS11.values()[0])
 
-# Exterior nodes
-node_object = mypart.sets['all_faces'].nodes
-node_labels = [node.label for node in node_object]
-
-# Print_result
-with open(results_location + 'nodes.csv', 'w') as f:
-    f.write('nodeid,nodetype,x,y,z,s11\n')
-    for node_s11 in nodalS11.items():
-        nodeid, s11 = node_s11[0], node_s11[-1]
-        meshnode_object = mypart.nodes[nodeid - 1]
-        x, y, z = meshnode_object.coordinates[0], meshnode_object.coordinates[1], meshnode_object.coordinates[2]
-        if nodeid in node_labels:
-            nodetype = 1
-        else:
-            nodetype = 0
-        f.write('%d,%d,%f,%f,%f,%f\n' % (nodeid, nodetype, x, y, z, s11))
-
-with open(results_location + 'elements.csv', 'w') as f:
-    f.write('elementid,node1,node2,node3,node4\n')
-    for element in mypart.elements:
-        f.write('%d,%d,%d,%d,%d\n' % (element.label, element.connectivity[0], element.connectivity[1],
-                                   element.connectivity[2], element.connectivity[3]))
+nodal_mises = {}
+for value in field.values:
+    nodal_mises.update({value.nodeLabel: value.mises})
+print(nodal_mises.values()[0])

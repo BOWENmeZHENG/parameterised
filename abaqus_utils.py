@@ -128,6 +128,18 @@ def job(job_name):
     mdb.jobs[job_name].submit(consistencyChecking=OFF)
 
 
+def get_nodal_S(index, field):
+    nodalS = {}
+    for value in field.values:
+        if value.nodeLabel in nodalS:
+            nodalS[value.nodeLabel].append(value.data[index])
+        else:
+            nodalS.update({value.nodeLabel: [value.data[index]]})
+    for key in nodalS:
+        nodalS.update({key: sum(nodalS[key]) / len(nodalS[key])})
+    return nodalS
+
+
 def post_process(job_name):
     odb_name = job_name + '.odb'
     odb = openOdb(path=odb_name, readOnly=True)
@@ -138,34 +150,46 @@ def post_process(job_name):
     odb_set_whole = odb_assembly.elementSets[' ALL ELEMENTS']
     field = elemStress.getSubset(region=odb_set_whole, position=ELEMENT_NODAL)
 
-    nodalS11 = {}
+    nodalS11 = get_nodal_S(0, field)
+    nodalS22 = get_nodal_S(1, field)
+    nodalS33 = get_nodal_S(2, field)
+    nodalS12 = get_nodal_S(3, field)
+    nodalS13 = get_nodal_S(4, field)
+    nodalS23 = get_nodal_S(5, field)
+    nodal_mises = {}
     for value in field.values:
-        if value.nodeLabel in nodalS11:
-            nodalS11[value.nodeLabel].append(value.data[0])
-        else:
-            nodalS11.update({value.nodeLabel: [value.data[0]]})
-    for key in nodalS11:
-        nodalS11.update({key: sum(nodalS11[key]) / len(nodalS11[key])})
-    return nodalS11
+        nodal_mises.update({value.nodeLabel: value.mises})
+    nodal_all = [nodalS11, nodalS22, nodalS33, nodalS12, nodalS13, nodalS23, nodal_mises]
+    nodalS = nodalS11.copy()
+    for key in nodalS:
+        nodalS[key] = []
+    for nodal_set in nodal_all:
+        for key, value in nodal_set.items():
+            nodalS[key].append(value)
+    return nodalS
 
 
-def output_csv(mypart, results_location, nodalS11, filename):
+def output_csv(mypart, results_location, nodalS, filename):
     # Exterior nodes
-    node_object = mypart.sets['all_faces'].nodes
-    node_labels = [node.label for node in node_object]
+    node_object_external = mypart.sets['all_faces'].nodes
+    node_labels_external = [node.label for node in node_object_external]
+    node_object_load = mypart.sets['nodes_load'].nodes
+    # node_labels_load = [node.label for node in node_object_load]
+    node_object_bc = mypart.sets['nodes_bc'].nodes
+    # node_labels_bc = [node.label for node in node_object_bc]
 
     # Print_result
     with open(results_location + filename + '_nodes.csv', 'w') as f:
-        f.write('nodeid,nodetype,x,y,z,s11\n')
-        for node_s11 in nodalS11.items():
-            nodeid, s11 = node_s11[0], node_s11[-1]
+        f.write('nodeid,nodetype,x,y,z,S11,S22,S33,S12,S13,S12,mises\n')
+        for nodeid, stresses in nodalS.items():
             meshnode_object = mypart.nodes[nodeid - 1]
             x, y, z = meshnode_object.coordinates[0], meshnode_object.coordinates[1], meshnode_object.coordinates[2]
-            if nodeid in node_labels:
+            if nodeid in node_labels_external:
                 nodetype = 1
             else:
                 nodetype = 0
-            f.write('%d,%d,%f,%f,%f,%f\n' % (nodeid, nodetype, x, y, z, s11))
+            f.write('%d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n' % (nodeid, nodetype, x, y, z, stresses[0], stresses[1], stresses[2], stresses[3], stresses[4], stresses[5], stresses[6]))
+
 
     with open(results_location + filename + '_elements.csv', 'w') as f:
         f.write('elementid,node1,node2,node3,node4\n')
