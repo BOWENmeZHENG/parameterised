@@ -148,8 +148,10 @@ odb_instance = odb_assembly.instances.keys()[0]
 odb_step1 = odb.steps.values()[0]
 frame = odb.steps[odb_step1.name].frames[-1]
 elemStress = frame.fieldOutputs['S']
+elemDisp = frame.fieldOutputs['U']  # new
 odb_set_whole = odb_assembly.elementSets[' ALL ELEMENTS']
 field = elemStress.getSubset(region=odb_set_whole, position=ELEMENT_NODAL)
+field_disp = elemDisp.getSubset(region=odb_set_whole, position=ELEMENT_NODAL)  # new
 nodalS11 = {}
 for value in field.values:
     if value.nodeLabel in nodalS11:
@@ -164,4 +166,9 @@ print(nodalS11.values()[0])
 nodal_mises = {}
 for value in field.values:
     nodal_mises.update({value.nodeLabel: value.mises})
-print(nodal_mises.values()[0])
+print(nodal_mises.values()[0], len(nodal_mises.values()))
+
+nodal_disp = {}
+for value in elemDisp.values:
+    nodal_disp.update({value.nodeLabel: value.data[0]})
+print(nodal_disp.values()[0], len(nodal_disp.values()))

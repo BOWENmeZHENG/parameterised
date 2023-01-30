@@ -30,9 +30,9 @@ def write_pymodel(r_out=0.3, r_in=0.2, width=0.1, spoke_width=0.04, num_spokes=3
         # Job
         f.write(f"ut.job('{job_name}')\n")
         # Access results
-        f.write(f"nodalS = ut.post_process('{job_name}')\n")
+        f.write(f"nodalUS = ut.post_process('{job_name}')\n")
         # csv files for ML
-        f.write(f"ut.output_csv(mypart, '{results_location}', nodalS, '{filename}')\n")
+        f.write(f"ut.output_csv(mypart, '{results_location}', nodalUS, '{filename}')\n")
     return filename
 
 

@@ -164,7 +164,8 @@ frame = odb.steps[odb_step1.name].frames[-1]
 elemStress = frame.fieldOutputs['S']
 odb_set_whole = odb_assembly.elementSets[' ALL ELEMENTS']
 field = elemStress.getSubset(region=odb_set_whole, position=ELEMENT_NODAL)
-print(field.values[0])
+
+print(field_disp.values[0])
 
 nodalS11 = {}
 for value in field.values:
